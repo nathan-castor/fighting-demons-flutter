@@ -19,12 +19,9 @@ void main() async {
   ]);
 
   // Initialize Supabase
-  // TODO: Replace with your Supabase credentials
   await Supabase.initialize(
-    url: const String.fromEnvironment('SUPABASE_URL',
-        defaultValue: 'YOUR_SUPABASE_URL'),
-    anonKey: const String.fromEnvironment('SUPABASE_ANON_KEY',
-        defaultValue: 'YOUR_SUPABASE_ANON_KEY'),
+    url: 'https://mknsvbvvclfivzlrrmpw.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1rbnN2YnZ2Y2xmaXZ6bHJybXB3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxNTM3ODEsImV4cCI6MjA4MzcyOTc4MX0.SvMdalz3C5-V17zq0HbXru9YaecemqPYkPgiw2JjsfA',
   );
 
   runApp(
