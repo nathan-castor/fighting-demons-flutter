@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:fighting_demons/providers/providers.dart';
 import 'package:fighting_demons/router/app_router.dart';
 import 'package:fighting_demons/theme/app_theme.dart';
@@ -43,11 +44,21 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
     try {
       final auth = ref.read(authServiceProvider);
-      await auth.signUp(
+      final response = await auth.signUp(
         email: _emailController.text.trim(),
         password: _passwordController.text,
         name: _nameController.text.trim(),
       );
+
+      // Manually create profile after signup
+      if (response.user != null) {
+        final supabase = Supabase.instance.client;
+        await supabase.from('profiles').insert({
+          'id': response.user!.id,
+          'email': _emailController.text.trim(),
+          'name': _nameController.text.trim(),
+        });
+      }
 
       if (mounted) {
         ref.read(profileProvider.notifier).loadProfile();
