@@ -2,9 +2,75 @@
 /// Countdown timer for meditation with haptic feedback
 
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fighting_demons/theme/app_theme.dart';
+
+/// Meditation tips - wisdom for beginners and reminders for practitioners
+const _meditationTips = [
+  // Common misconceptions
+  MeditationTip(
+    title: "Don't fight your thoughts",
+    body: "The goal isn't to stop thinking. It's to notice when you're thinking, then gently return to your breath. The noticing IS the practice.",
+  ),
+  MeditationTip(
+    title: "You can't fail",
+    body: "If you sat down and tried, you succeeded. A wandering mind that returns is stronger than one that never wandered.",
+  ),
+  MeditationTip(
+    title: "Start with the breath",
+    body: "Feel the air enter your nose. Feel your chest rise. Feel it fall. When thoughts come, acknowledge them, then return here.",
+  ),
+  
+  // Technique tips
+  MeditationTip(
+    title: "The counting method",
+    body: "Count each exhale from 1 to 10, then start over. If you lose count, simply begin again at 1. No judgment.",
+  ),
+  MeditationTip(
+    title: "Body scan",
+    body: "Start at your feet. Notice any tension. Move slowly upward — legs, hips, stomach, chest, arms, neck, face. Just notice. Don't fix.",
+  ),
+  MeditationTip(
+    title: "The anchor",
+    body: "Choose one sensation as your anchor: the breath at your nostrils, your hands on your lap, or sounds around you. Return to it when you drift.",
+  ),
+  
+  // Wisdom
+  MeditationTip(
+    title: "Nepsis",
+    body: "The Desert Fathers called it 'watchfulness' — the practice of observing your own mind. You are learning to guard the gate.",
+  ),
+  MeditationTip(
+    title: "The space between",
+    body: "Between stimulus and response, there is a space. In that space lies your power. Meditation expands that space.",
+  ),
+  MeditationTip(
+    title: "Thoughts are visitors",
+    body: "You are not your thoughts. They arrive uninvited, like guests. You can acknowledge them without serving them tea.",
+  ),
+  
+  // Encouragement
+  MeditationTip(
+    title: "Even one breath counts",
+    body: "One conscious breath is meditation. You don't need perfect stillness — just presence. Start there.",
+  ),
+  MeditationTip(
+    title: "The demons hate this",
+    body: "Every moment of stillness weakens them. They thrive on distraction. Your quiet focus is a weapon they cannot counter.",
+  ),
+];
+
+class MeditationTip {
+  final String title;
+  final String body;
+  const MeditationTip({required this.title, required this.body});
+}
+
+MeditationTip _getRandomTip() {
+  return _meditationTips[Random().nextInt(_meditationTips.length)];
+}
 
 class MeditationTimer extends StatefulWidget {
   final int durationMinutes;
@@ -30,11 +96,13 @@ class _MeditationTimerState extends State<MeditationTimer>
   bool _isComplete = false;
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
+  late MeditationTip _currentTip;
 
   @override
   void initState() {
     super.initState();
     _secondsRemaining = widget.durationMinutes * 60;
+    _currentTip = _getRandomTip();
 
     _pulseController = AnimationController(
       duration: const Duration(seconds: 4),
@@ -116,49 +184,94 @@ class _MeditationTimerState extends State<MeditationTimer>
   }
 
   Widget _buildStartState() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text('🧘', style: TextStyle(fontSize: 64)),
-        const SizedBox(height: 24),
-        Text(
-          'MEDITATION',
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                letterSpacing: 3,
-              ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          '${widget.durationMinutes} Minutes',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: AppColors.textSecondary,
-              ),
-        ),
-        const SizedBox(height: 24),
-        Text(
-          'Close your eyes. Breathe.\nWatch your thoughts without following them.',
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: AppColors.textSecondary,
-                fontStyle: FontStyle.italic,
-              ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 32),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: _startTimer,
-            child: const Text('Begin Stillness'),
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text('🧘', style: TextStyle(fontSize: 56)),
+          const SizedBox(height: 16),
+          Text(
+            'MEDITATION',
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  letterSpacing: 3,
+                ),
           ),
-        ),
-        if (widget.onSkip != null) ...[
-          const SizedBox(height: 12),
-          TextButton(
-            onPressed: widget.onSkip,
-            child: const Text('Skip meditation'),
+          const SizedBox(height: 4),
+          Text(
+            '${widget.durationMinutes} Minutes',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: AppColors.textSecondary,
+                ),
           ),
+          const SizedBox(height: 24),
+          
+          // Meditation tip card
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 8),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceLight,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: AppColors.primary.withValues(alpha: 0.3),
+              ),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    const Text('💡', style: TextStyle(fontSize: 20)),
+                    const SizedBox(width: 8),
+                    Text(
+                      _currentTip.title,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  _currentTip.body,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: AppColors.textSecondary,
+                        height: 1.5,
+                      ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          
+          // Show another tip button
+          TextButton.icon(
+            onPressed: () {
+              setState(() {
+                _currentTip = _getRandomTip();
+              });
+            },
+            icon: const Icon(Icons.refresh, size: 18),
+            label: const Text('Another tip'),
+          ),
+          const SizedBox(height: 16),
+          
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _startTimer,
+              child: const Text('Begin Stillness'),
+            ),
+          ),
+          if (widget.onSkip != null) ...[
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: widget.onSkip,
+              child: const Text('Skip meditation'),
+            ),
+          ],
         ],
-      ],
+      ),
     );
   }
 
