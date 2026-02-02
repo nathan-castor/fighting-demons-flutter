@@ -8,6 +8,7 @@ import 'package:fighting_demons/providers/providers.dart';
 import 'package:fighting_demons/router/app_router.dart';
 import 'package:fighting_demons/theme/app_theme.dart';
 import 'package:fighting_demons/config/lore_data.dart';
+import 'package:fighting_demons/widgets/meditation_timer.dart';
 
 enum FaceOffState {
   greeting,
@@ -33,6 +34,7 @@ class _FaceOffScreenState extends ConsumerState<FaceOffScreen>
   int? _reps;
   final _repsController = TextEditingController();
   bool _isPr = false;
+  int _meditationMinutes = 5; // Default 5 minutes, option for 10
 
   late AnimationController _textAnimController;
   late Animation<double> _textFadeAnim;
@@ -242,47 +244,39 @@ class _FaceOffScreenState extends ConsumerState<FaceOffScreen>
   }
 
   Widget _buildMeditation() {
-    final profile = ref.watch(profileProvider).valueOrNull;
-    final stageEmoji = profile?.spiritGuideStage.icon ?? '🕯️';
-
-    return _DialogScreen(
-      emoji: stageEmoji,
-      message: meditationPrompt,
+    return Padding(
+      padding: const EdgeInsets.all(24),
       child: Column(
         children: [
-          const SizedBox(height: 24),
-          // TODO: Add actual meditation timer here
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceLight,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
+          // Duration selector (only show if timer hasn't started)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 24),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text('🧘', style: TextStyle(fontSize: 48)),
-                const SizedBox(height: 16),
-                Text(
-                  '10 Minutes',
-                  style: Theme.of(context).textTheme.headlineMedium,
+                _DurationChip(
+                  label: '5 min',
+                  selected: _meditationMinutes == 5,
+                  onTap: () => setState(() => _meditationMinutes = 5),
                 ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Close your eyes. Breathe. Be still.',
-                  style: TextStyle(color: AppColors.textSecondary),
+                const SizedBox(width: 12),
+                _DurationChip(
+                  label: '10 min',
+                  selected: _meditationMinutes == 10,
+                  onTap: () => setState(() => _meditationMinutes = 10),
                 ),
               ],
             ),
           ),
+          
+          Expanded(
+            child: MeditationTimer(
+              durationMinutes: _meditationMinutes,
+              onComplete: _completeMeditation,
+            ),
+          ),
         ],
       ),
-      actions: [
-        _DialogButton(
-          label: 'Meditation Complete',
-          isPrimary: true,
-          onPressed: _completeMeditation,
-        ),
-      ],
     );
   }
 
@@ -461,4 +455,41 @@ class _DialogButton {
     this.isPrimary = false,
     required this.onPressed,
   });
+}
+
+class _DurationChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _DurationChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        decoration: BoxDecoration(
+          color: selected ? AppColors.primary : AppColors.surfaceLight,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: selected ? AppColors.primary : Colors.transparent,
+            width: 2,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: selected ? Colors.white : AppColors.textSecondary,
+            fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+      ),
+    );
+  }
 }
