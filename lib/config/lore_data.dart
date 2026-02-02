@@ -105,7 +105,7 @@ const meditationPrompt =
 /// Completion messages for each face-off type
 const completionMessages = <FaceOffType, String>{
   FaceOffType.dawn:
-      "The morning stand-off is complete. You have moved. You have stilled. The demons retreat — for now.",
+      "The morning face-off is complete. You have moved. You have stilled. The demons retreat — for now.",
   FaceOffType.noon:
       "Midday strength proven. The noonday demon slinks away. You are stronger than its whispers.",
   FaceOffType.dusk:
